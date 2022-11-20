@@ -35,6 +35,9 @@ int ticks = 0;
 int sleeptick = 0;
 bool asleep = false;
 
+int offticks = 0;
+
+
 void setup() {
   M5.begin();               // Initialise the display
   M5.Lcd.setRotation(1);
@@ -44,13 +47,20 @@ void setup() {
 
 void loop() {
 
+
+
   if(sleeptick > 3000) {
     M5.Axp.ScreenBreath(0);
     asleep = true;
+    offticks = offticks + 1;
   } else if (!asleep) {
     sleeptick = sleeptick + 1;
   }
 
+  if(offticks > 6000) {
+    offticks = 0;
+    M5.Axp.PowerOff();
+  }
 
   if(ticks < 200){
     M5.update(); 
