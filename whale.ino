@@ -1,9 +1,8 @@
-// it's a whale, you can feed em and they love it.
 
 
-#include "xbm.h"             
+#include "xbm.h"
 
-#include <M5StickC.h>       
+#include <M5StickC.h> 
 
 int x = 30;
 int y = 30;
@@ -32,15 +31,19 @@ int offticks = 0;
 
 
 void setup() {
-  M5.begin();               // Initialise the display
+  M5.begin(); 
   M5.Lcd.setRotation(1);
   M5.Axp.ScreenBreath(10);
-  M5.Lcd.fillScreen(TFT_BLACK); // Black screen fill
+  M5.Lcd.fillScreen(TFT_BLACK); 
+  M5.Lcd.setTextSize(2);
+  M5.Lcd.print(" How's this\n for a rare\n vpet?\n <3\n -joostin");
+  delay(4000);
+  M5.Lcd.fillScreen(TFT_BLACK);
 }
 
 void loop() {
   if(sleeptick > 3000) {
-    M5.Axp.ScreenBreath(0);
+    M5.Axp.ScreenBreath(3);
     asleep = true;
     offticks = offticks + 1;
   } else if (!asleep) {
