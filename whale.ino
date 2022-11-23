@@ -1,17 +1,9 @@
-// Example sketch to demonstrate the drawing of X BitMap (XBM)
-// format image onto the display.
+// it's a whale, you can feed em and they love it.
 
-// Information on the X BitMap (XBM) format can be found here:
-// https://en.wikipedia.org/wiki/X_BitMap
 
-// This example is part of the TFT_eSPI library:
-// https://github.com/Bodmer/TFT_eSPI
+#include "xbm.h"             
 
-// Created by Bodmer 23/14/18
-
-#include "xbm.h"             // Sketch tab header for xbm images
-
-#include <M5StickC.h>        // Hardware-specific library
+#include <M5StickC.h>       
 
 int x = 30;
 int y = 30;
@@ -29,7 +21,8 @@ bool chewtime = false;
 int chewcount = 0;
 bool chomp = false;
 
-int hunger = 0;
+bool eating = false;
+int shrimptick = 0;
 
 int ticks = 0;
 int sleeptick = 0;
@@ -46,9 +39,6 @@ void setup() {
 }
 
 void loop() {
-
-
-
   if(sleeptick > 3000) {
     M5.Axp.ScreenBreath(0);
     asleep = true;
@@ -62,7 +52,7 @@ void loop() {
     M5.Axp.PowerOff();
   }
 
-  if(ticks < 200){
+  if(ticks < 100){
     M5.update(); 
     if (M5.BtnA.wasPressed()) {
       if(asleep) {
@@ -70,20 +60,37 @@ void loop() {
         sleeptick = 0;
         M5.Axp.ScreenBreath(10);
       } else {
-        chewtime = true;
-        chewcount = 5;
-        chomp = true;
+        sleeptick = 0;
+        if (!eating) {
+          chewtime = true;
+          chewcount = 5;
+          chomp = true;
+          eating = true;
+          shrimptick = 4;
+        }
       }
+
     }    
     delay(10);
     ticks = ticks + 1;
   } else {
     ticks = 0;
 
-    x = x + ((random(3) - 1)*4);
-    y = y + ((random(3) - 1)*4);
+    if(eating) {
+      x = x + 4;
+      if(y > M5.Lcd.height() - (whaleHeight / 2) ) {
+        y = y + 4;
+      } else {
+        y = y - 4;
+      }
+    } else {
+      x = x + ((random(3) - 1)*4);
+      y = y + ((random(3) - 1)*4);
+    }
 
-    x = max(min(x, M5.Lcd.width() - whaleWidth), 0);
+
+
+    x = max(min(x, M5.Lcd.width() - whaleWidth - shrimpWidth), 0);
     y = max(min(y, M5.Lcd.height() - whaleHeight), 0);
     
   /*
@@ -98,41 +105,62 @@ void loop() {
   */
 
 
-      M5.Lcd.fillScreen(BLACK);
-      
-      if(flapdown) {
-        if(chewtime && chomp) {
-          M5.Lcd.drawXBitmap(x, y, whale_r_closed_down, whaleWidth, whaleHeight, TFT_WHITE);
-        } else {
-          M5.Lcd.drawXBitmap(x, y, whale_r_open_down, whaleWidth, whaleHeight, TFT_WHITE);
-        }
-        flapdown = false;
+    M5.Lcd.fillScreen(BLACK);
+    
+    if(flapdown) {
+      if(chewtime && chomp) {
+        M5.Lcd.drawXBitmap(x, y, whale_r_closed_down, whaleWidth, whaleHeight, TFT_NAVY);
       } else {
-        if(chewtime && chomp) {
-          M5.Lcd.drawXBitmap(x, y, whale_r_closed_up, whaleWidth, whaleHeight, TFT_WHITE);
-        } else {
-          M5.Lcd.drawXBitmap(x, y, whale_r_open_up, whaleWidth, whaleHeight, TFT_WHITE);
-        }      
-        flapdown = true;
+        M5.Lcd.drawXBitmap(x, y, whale_r_open_down, whaleWidth, whaleHeight, TFT_NAVY);
       }
-      
-      if(!isbubble){
-        isbubble = true;
-        bubblex = x + 70;
-        bubbley = y - 4;
-        bubblesize = 1;
+      flapdown = false;
+    } else {
+      if(chewtime && chomp) {
+        M5.Lcd.drawXBitmap(x, y, whale_r_closed_up, whaleWidth, whaleHeight, TFT_NAVY);
+      } else {
+        M5.Lcd.drawXBitmap(x, y, whale_r_open_up, whaleWidth, whaleHeight, TFT_NAVY);
+      }      
+      flapdown = true;
+    }
+    
+    // yeah i know, i'm tired.
+    if(eating) {
+      if(shrimptick == 4) {
+        M5.Lcd.drawXBitmap(M5.Lcd.width() - shrimpWidth, (M5.Lcd.height() / 2) - 8, shrimpfill1, shrimpWidth, shrimpHeight, TFT_PINK);
+        M5.Lcd.drawXBitmap(M5.Lcd.width() - shrimpWidth, (M5.Lcd.height() / 2) - 8, shrimp1, shrimpWidth, shrimpHeight, TFT_MAROON);
+      } else if (shrimptick == 3) {
+        M5.Lcd.drawXBitmap(M5.Lcd.width() - shrimpWidth, (M5.Lcd.height() / 2) - 8, shrimpfill2, shrimpWidth, shrimpHeight, TFT_PINK);
+        M5.Lcd.drawXBitmap(M5.Lcd.width() - shrimpWidth, (M5.Lcd.height() / 2) - 8, shrimp2, shrimpWidth, shrimpHeight, TFT_MAROON);
+      } else if (shrimptick == 2) {
+        M5.Lcd.drawXBitmap(M5.Lcd.width() - shrimpWidth, (M5.Lcd.height() / 2) - 8, shrimpfill3, shrimpWidth, shrimpHeight, TFT_PINK);
+        M5.Lcd.drawXBitmap(M5.Lcd.width() - shrimpWidth, (M5.Lcd.height() / 2) - 8, shrimp3, shrimpWidth, shrimpHeight, TFT_MAROON);
+      } else if (shrimptick == 1) {
+        M5.Lcd.drawXBitmap(M5.Lcd.width() - shrimpWidth, (M5.Lcd.height() / 2) - 8, shrimpfill4, shrimpWidth, shrimpHeight, TFT_PINK);
+        M5.Lcd.drawXBitmap(M5.Lcd.width() - shrimpWidth, (M5.Lcd.height() / 2) - 8, shrimp4, shrimpWidth, shrimpHeight, TFT_MAROON);
       }
-      
-      if(isbubble) {
-        M5.Lcd.drawCircle(bubblex, bubbley, bubblesize, TFT_WHITE);
-        bubbley = bubbley - 8;
-        bubblesize = bubblesize + 1;
-        bubblesize = min(3, bubblesize);
+      shrimptick = shrimptick - 1;
+      if(shrimptick < 1) {
+        eating = false;
       }
+    }
+    
+    if(!isbubble){
+      isbubble = true;
+      bubblex = x + 70;
+      bubbley = y - 4;
+      bubblesize = 1;
+    }
+    
+    if(isbubble) {
+      M5.Lcd.drawCircle(bubblex, bubbley, bubblesize, TFT_BLUE);
+      bubbley = bubbley - 8;
+      bubblesize = bubblesize + 1;
+      bubblesize = min(3, bubblesize);
+    }
 
-      if(bubbley <= -50) {
-        isbubble = false;
-      }
+    if(bubbley <= -50) {
+      isbubble = false;
+    }
 
 
     if(chewtime) {
@@ -145,6 +173,21 @@ void loop() {
     }
     if(chewtime && chewcount <= 0){
       chewtime = false;
+      // so lazy, sorry.
+      M5.Lcd.drawXBitmap(x + 58, y + 19, heart, heartWidth, heartHeight, TFT_PINK);
+      delay(1000);
+      M5.Lcd.fillScreen(BLACK);
+      M5.Lcd.drawXBitmap(x, y, whale_r_open_up, whaleWidth, whaleHeight, TFT_NAVY);
+      delay(1000);
+      M5.Lcd.drawXBitmap(x + 58, y + 19, heart, heartWidth, heartHeight, TFT_PINK);
+      delay(1000);
+      M5.Lcd.fillScreen(BLACK);
+      M5.Lcd.drawXBitmap(x, y, whale_r_open_up, whaleWidth, whaleHeight, TFT_NAVY);
+      delay(1000);
+      M5.Lcd.drawXBitmap(x + 58, y + 19, heart, heartWidth, heartHeight, TFT_PINK);
+      delay(1000);
+      M5.Lcd.fillScreen(BLACK);
+      M5.Lcd.drawXBitmap(x, y, whale_r_open_up, whaleWidth, whaleHeight, TFT_NAVY);        
     }
 
   }
