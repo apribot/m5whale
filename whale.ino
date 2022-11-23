@@ -43,16 +43,11 @@ void setup() {
 
 void loop() {
   if(sleeptick > 3000) {
-    M5.Axp.ScreenBreath(3);
+    M5.Axp.ScreenBreath(8);
     asleep = true;
     offticks = offticks + 1;
   } else if (!asleep) {
     sleeptick = sleeptick + 1;
-  }
-
-  if(offticks > 6000) {
-    offticks = 0;
-    M5.Axp.PowerOff();
   }
 
   if(ticks < 100){
